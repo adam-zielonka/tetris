@@ -11,6 +11,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libgl-dev libglu1-mesa-dev freeglut3-dev
       - run: g++ -Wall -o tetris.out cpp/tetris.cpp -lGL -lGLU -lglut -lm
