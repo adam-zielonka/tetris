@@ -16,6 +16,7 @@ This command has been checked in Ubuntu 18.10.
 ## Build & Run
 
 ```shell
+$ cd cpp
 $ g++ -o tetris.out tetris.cpp -lGL -lGLU -lglut -lm
 $ ./tetris.out
 ```
