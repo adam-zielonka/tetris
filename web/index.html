@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tetris</title>
+  <style>
+    body { margin: 0; padding: 1rem; background: #111827; color: #f9fafb; font: 16px system-ui, sans-serif; text-align: center; }
+    h1 { margin: .5rem 0; }
+    .game { position: relative; width: min(600px, 100%); aspect-ratio: 1; margin: auto; }
+    canvas { width: 100%; height: 100%; display: block; }
+    #text { position: absolute; inset: 0; pointer-events: none; }
+    p { max-width: 600px; margin: 1rem auto; line-height: 1.5; }
+    #status { color: #fbbf24; }
+  </style>
+</head>
+<body>
+  <h1>Tetris</h1>
+  <div class="game">
+    <canvas id="canvas" width="600" height="600" tabindex="0" aria-label="Tetris game"></canvas>
+    <canvas id="text" width="600" height="600" aria-hidden="true"></canvas>
+  </div>
+  <p>Use the arrow keys to move and rotate, Space to select, P to pause, Esc to return, and L to switch language.</p>
+  <p id="status" role="status">Loading game…</p>
+  <script>
+    var Module = {
+      canvas: document.getElementById('canvas'),
+      preRun: [function () {
+        try {
+          const saved = localStorage.getItem('tetris-results');
+          if (saved !== null) FS.writeFile('wyniki.txt', saved);
+        } catch (error) { console.warn('Could not load results:', error); }
+      }],
+      onRuntimeInitialized: function () { document.getElementById('status').textContent = ''; },
+      onAbort: function () { document.getElementById('status').textContent = 'The game could not start. Please reload the page.'; }
+    };
+  </script>
+  <script src="tetris.js"></script>
+</body>
+</html>

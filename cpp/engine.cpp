@@ -2,6 +2,21 @@
 #include <GL/glut.h>
 #include <iostream>
 
+#ifdef __EMSCRIPTEN__
+EM_JS(void, clearWebText, (), {
+  const canvas = document.getElementById('text');
+  canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+});
+
+EM_JS(void, renderWebText, (const char *text, int x, int y), {
+  const context = document.getElementById('text').getContext('2d');
+  context.font = '15px monospace';
+  context.fillStyle = 'black';
+  context.textBaseline = 'alphabetic';
+  context.fillText(UTF8ToString(text), x, 600 - y);
+});
+#endif
+
 namespace Engine {
   const GLfloat Colors[12][3] = {
     {1,1,1},
@@ -44,6 +59,9 @@ namespace Engine {
   }
 
   void renderText(string String, int x, int y) {
+#ifdef __EMSCRIPTEN__
+    renderWebText(String.c_str(), x, y);
+#else
     glColor3f(0, 0, 0);
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
@@ -63,18 +81,28 @@ namespace Engine {
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
     glPopMatrix();
+#endif
   }
 
   void Reshape(int width, int height){
     glViewport(0, 0, width, height);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+#ifdef __EMSCRIPTEN__
+    const double top = tan(70.0 * 3.141592653589793 / 360.0);
+    glFrustum(-top, top, -top, top, 1, 100);
+#else
     gluPerspective(70, 1, 1, 100);
+#endif
 
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
 
+#ifdef __EMSCRIPTEN__
+    glTranslatef(0, 0, -1.5f);
+#else
     gluLookAt(0, 0, 1.5, 0, 0, 0, 0, 1, 0);
+#endif
   }
 
   void Init(int argc, char * argv[], GLint * speed, void (* MainLoop)(void), void (* Timer)(void),
@@ -85,6 +113,9 @@ namespace Engine {
     static function<void(int, int , int)> special_keys_bounce = [&](int key, int x, int y) { SpecialKeys(key, x, y); };
     
     auto display = []() {   
+#ifdef __EMSCRIPTEN__
+      clearWebText();
+#endif
       glClearColor(1, 1, 1, 1);        
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 

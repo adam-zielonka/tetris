@@ -58,3 +58,25 @@ You can find more on this link: [Does WSL support openGL?](https://github.com/mi
 
 ## License
 MIT
+
+## Play in a browser
+
+The WebAssembly version is available at https://adam-zielonka.github.io/tetris/.
+Use the arrow keys to move and rotate, Space to select a menu item, P to pause,
+Esc to return, and L to change language. High scores are stored in your browser
+on this device. A keyboard is required.
+
+To build it locally, install and activate [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html) 6.0.13, then run:
+
+```shell
+./scripts/build-web.sh
+python3 -m http.server --directory build/web 8000
+```
+
+Open `http://localhost:8000/`. Serve the files over HTTP rather than opening the
+HTML directly. On Linux, the native executable requires the OpenGL, GLU and
+freeglut runtime libraries and a graphical desktop.
+
+GitHub Actions builds both versions on pushes and pull requests. A push to
+`main` deploys the web build to GitHub Pages. Pushing a `v*` tag builds both
+archives and publishes a GitHub release.

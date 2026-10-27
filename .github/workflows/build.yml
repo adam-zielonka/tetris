@@ -1,16 +1,78 @@
-name: Build Tetris
+name: Build and publish Tetris
 on:
   push:
     branches: [main]
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
 permissions:
   contents: read
+concurrency:
+  group: tetris-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 jobs:
-  build:
+  linux:
     runs-on: ubuntu-24.04
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7
       - run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libgl-dev libglu1-mesa-dev freeglut3-dev
-      - run: g++ -Wall -o tetris.out cpp/tetris.cpp -lGL -lGLU -lglut -lm
+      - run: |
+          mkdir -p build/linux
+          g++ -Wall -O2 -o build/linux/tetris cpp/tetris.cpp -lGL -lGLU -lglut -lm
+          cp README.md LICENSE build/linux/
+          tar -czf tetris-linux-x86_64.tar.gz -C build/linux .
+      - uses: actions/upload-artifact@v7
+        with:
+          name: tetris-linux-x86_64
+          path: tetris-linux-x86_64.tar.gz
+          if-no-files-found: error
+  web:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7
+      - uses: mymindstorm/setup-emsdk@v14
+        with:
+          version: 6.0.13
+      - run: scripts/build-web.sh
+      - run: tar -czf tetris-web.tar.gz -C build/web .
+      - uses: actions/upload-artifact@v7
+        with:
+          name: tetris-web
+          path: tetris-web.tar.gz
+          if-no-files-found: error
+      - uses: actions/upload-pages-artifact@v4
+        if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+        with:
+          path: build/web
+  pages:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    needs: web
+    runs-on: ubuntu-24.04
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
+  release:
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [linux, web]
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: artifacts
+          merge-multiple: true
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+          RELEASE_TAG: ${{ github.ref_name }}
+        run: gh release create "$RELEASE_TAG" artifacts/*.tar.gz --verify-tag --generate-notes

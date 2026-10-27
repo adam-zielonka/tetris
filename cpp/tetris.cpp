@@ -2,7 +2,11 @@
 #include <math.h>
 #include <stdio.h>
 #include <GL/gl.h>
+#ifndef __EMSCRIPTEN__
 #include <GL/glu.h>
+#else
+#include <emscripten.h>
+#endif
 #include <GL/glut.h>
 #include <iostream>
 #include <ctime>
@@ -26,6 +30,14 @@ enum MENU {
 };
 
 GLint speed = 1000;
+
+void ExitGame() {
+#ifdef __EMSCRIPTEN__
+  emscripten_run_script("window.location.reload()");
+#else
+  exit(0);
+#endif
+}
 
 int menu = MAIN_MENU;
 int selectedMenuItem = 0;
@@ -135,6 +147,8 @@ void ReadResults() {
 void SaveResults() {
   File::saveResultFile(resultNames, resultPoints, playerName, points);
   ReadResults();
+  playerName[0] = 0;
+  playerNameLength = 0;
   menu = RESULTS;
 }
 
@@ -272,7 +286,7 @@ void Keyboard(unsigned char key, int x, int y) {
     speed+=100;
   }
 
-  if(key == '-' && speed>0) {
+  if(key == '-' && speed>100) {
     speed-=100;
   }
 
@@ -296,7 +310,7 @@ void Keyboard(unsigned char key, int x, int y) {
         menu = RESULTS;
         break; 
       case 4:
-        exit(0);
+        ExitGame();
         break;
     }
   }
@@ -324,7 +338,7 @@ void Keyboard(unsigned char key, int x, int y) {
       menu = RESULTS;
   }
   else if(key == 27 && menu == MAIN_MENU) {
-      exit( 0 );
+      ExitGame();
   }
   else if(key == 27) {
       menu = MAIN_MENU;
@@ -373,7 +387,7 @@ void SpecialKeys(int key, int x, int y) {
         else selectedMenuItem--;
         break;
       case GLUT_KEY_END:
-        exit(0);        
+        ExitGame();
         break; 
     }
   }

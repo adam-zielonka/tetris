@@ -1,5 +1,12 @@
 #include <fstream>
 
+#ifdef __EMSCRIPTEN__
+EM_JS(void, persistWebResults, (), {
+  try { localStorage.setItem('tetris-results', FS.readFile('wyniki.txt', { encoding: 'utf8' })); }
+  catch (error) { console.warn('Could not save results:', error); }
+});
+#endif
+
 using namespace std;
 
 namespace File {
@@ -8,19 +15,22 @@ namespace File {
     file.open("wyniki.txt", ios::out);
     if(file.good()) {
       int addedResult = false;
-      int counter = 0;
-      while(++counter < 5) {
+      int counter = 1;
+      for (int slot = 0; slot < 5; ++slot) {
         if(resultPoints[counter] < points && addedResult == false) {
           addedResult = true;
-          counter--;
           file<<name<<endl;
           file<<points<<endl;
         } else {
           file<<resultNames[counter]<<endl;
           file<<resultPoints[counter]<<endl;
+          counter++;
         }
       }
       file.close();
+#ifdef __EMSCRIPTEN__
+      persistWebResults();
+#endif
     }
   }
 
@@ -45,22 +55,13 @@ namespace File {
       int counter = 0;
       while(!file.eof() && ++counter < 6) {
         getline(file, line);
-        for(int i = 0; i < 11; i++) {
-          resultNames[counter][i] = line[i];
-        }
-        resultNames[counter][11] = 0;
+        snprintf(resultNames[counter], 12, "%s", line.c_str());
         if(resultNames[counter][0] == 0) {
           sprintf(resultNames[counter], "Anonim");
         }
-        resultPoints[counter] = 0;
         getline(file, line);
-        for(int i=0;i<11;i++) {
-          resultCPoint[counter][i] = line[i];
-          if (line[i]==0) break;
-          resultPoints[counter] += line[i] - 48;
-          resultPoints[counter] *= 10;
-        }
-        resultPoints[counter] /= 10;
+        snprintf(resultCPoint[counter], 12, "%s", line.c_str());
+        resultPoints[counter] = atoi(resultCPoint[counter]);
       }
       file.close();
     } else {
