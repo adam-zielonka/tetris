@@ -69,10 +69,13 @@
     };
   </script>
   <script>
-    // GLUT listens for keys on window in capture phase. Keep input events for the on-screen keyboard.
+    // GLUT listens on window in capture phase; leave form and button keys to the browser.
     for (const type of ['keydown', 'keyup']) {
       window.addEventListener(type, function (event) {
-        if (event.target.id === 'player-name') event.stopImmediatePropagation();
+        if (event.target.id === 'player-name' ||
+            (event.target.closest?.('#controls button') && (event.key === ' ' || event.key === 'Enter'))) {
+          event.stopImmediatePropagation();
+        }
       }, true);
     }
     const controls = document.getElementById('controls');
