@@ -408,6 +408,12 @@ void SpecialKeys(int key, int x, int y) {
 
 #ifdef __EMSCRIPTEN__
 extern "C" {
+  EMSCRIPTEN_KEEPALIVE void web_set_language(int polish) {
+    const bool english = polish == 0;
+    if (I18N::lang != english) I18N::switchLang();
+    glutPostRedisplay();
+  }
+
   EMSCRIPTEN_KEEPALIVE void web_key(int key, int special) {
     if (special) SpecialKeys(key, 0, 0);
     else Keyboard(static_cast<unsigned char>(key), 0, 0);
@@ -429,7 +435,13 @@ extern "C" {
 }
 #endif
 
-int main(int argc, char * argv[]) {   
+int main(int argc, char * argv[]) {
+#ifdef __EMSCRIPTEN__
+  if (EM_ASM_INT({ return window.TetrisI18n.language === 'pl' ? 1 : 0; })) {
+    I18N::lang = false;
+    I18N::i18n = I18N::getPL(I18N::i18n);
+  }
+#endif
   ReadResults();
   srand(time(NULL));
   Engine::Init(argc, argv, &speed, MainLoop, Timer, Keyboard, SpecialKeys);

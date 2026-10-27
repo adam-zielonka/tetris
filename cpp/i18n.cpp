@@ -75,7 +75,7 @@ namespace I18N {
     i18n.GAME_PAUSE = "Pause! Press [P] and play";
 
     i18n.HELP_CONTROLS = "Controls:";
-    i18n.HELP_ARROWS = "Arross:";
+    i18n.HELP_ARROWS = "Arrows:";
     i18n.HELP_ARROW_UP = "UP - rotate";
     i18n.HELP_ARROW_DOWN = "DOWN - fall";
     i18n.HELP_ARROW_RIGHT = "RIGHT";
@@ -104,6 +104,9 @@ namespace I18N {
       lang = true;
       i18n = getEN(i18n);
     }
+#ifdef __EMSCRIPTEN__
+    EM_ASM({ window.TetrisI18n.setLanguage($0 ? 'en' : 'pl', true); }, lang ? 1 : 0);
+#endif
   }
 
 }

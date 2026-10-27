@@ -81,3 +81,18 @@ freeglut runtime libraries and a graphical desktop.
 GitHub Actions builds both versions on pushes and pull requests. A push to
 `main` deploys the web build to GitHub Pages. Pushing a `v*` tag builds both
 archives and publishes a GitHub release.
+
+
+## Language / Język
+
+The browser version supports Polish and English. On the first visit it uses the
+first supported language from the browser’s preferences, falling back to English.
+The PL / EN selector saves an explicit choice in this application’s local storage.
+Switching language preserves the current game. If storage is blocked, language switching
+still works for the current visit.
+The L key and the in-game language control stay synchronized with the page selector.
+
+The Pages workflow runs `scripts/test-web-language.cjs` against the built WebAssembly
+game using Playwright. It checks browser preferences, both directions of language
+synchronization, persistence, the paused board and 320–1440 px layouts. For a local
+run, make `@playwright/test` available on `NODE_PATH` and run the script after the web build.
