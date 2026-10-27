@@ -221,7 +221,20 @@ void RenderSaveTexts() {
   Support::renderTexts(Texts::SaveTexts(playerName));
 }
 
+#ifdef __EMSCRIPTEN__
+EM_JS(void, updateWebNameForm, (int active), {
+  const form = document.getElementById('name-form');
+  if (form.hidden === Boolean(active)) {
+    form.hidden = !active;
+    if (active) document.getElementById("player-name").value = "";
+  }
+});
+#endif
+
 void MainLoop() {
+#ifdef __EMSCRIPTEN__
+  updateWebNameForm(menu == GAME_OVER_WITH_RESULT_SAVE);
+#endif
   if(menu == MAIN_MENU) {
     RenderList();
     Support::renderTexts(Texts::MainMenuTexts());
@@ -392,6 +405,29 @@ void SpecialKeys(int key, int x, int y) {
     }
   }
 }
+
+#ifdef __EMSCRIPTEN__
+extern "C" {
+  EMSCRIPTEN_KEEPALIVE void web_key(int key, int special) {
+    if (special) SpecialKeys(key, 0, 0);
+    else Keyboard(static_cast<unsigned char>(key), 0, 0);
+    glutPostRedisplay();
+  }
+
+  EMSCRIPTEN_KEEPALIVE void web_name_char(int key, int reset) {
+    if (menu != GAME_OVER_WITH_RESULT_SAVE) return;
+    if (reset) {
+      playerNameLength = 0;
+      playerName[0] = 0;
+    } else if (playerNameLength < 11 &&
+        ((key >= 'a' && key <= 'z') || (key >= 'A' && key <= 'Z') ||
+         (key >= '0' && key <= '9'))) {
+      playerName[playerNameLength++] = static_cast<char>(key);
+      playerName[playerNameLength] = 0;
+    }
+  }
+}
+#endif
 
 int main(int argc, char * argv[]) {   
   ReadResults();

@@ -63,8 +63,9 @@ MIT
 
 The WebAssembly version is available at https://adam-zielonka.github.io/tetris/.
 Use the arrow keys to move and rotate, Space to select a menu item, P to pause,
-Esc to return, and L to change language. High scores are stored in your browser
-on this device. A keyboard is required.
+Esc to return, and L to change language. On a phone, use the on-screen controls;
+hold left, right or down to repeat a move. High scores are stored in your browser
+on this device.
 
 To build it locally, install and activate [Emscripten SDK](https://emscripten.org/docs/getting_started/downloads.html) 6.0.13, then run:
 

@@ -12,6 +12,19 @@
     #text { position: absolute; inset: 0; pointer-events: none; }
     p { max-width: 600px; margin: 1rem auto; line-height: 1.5; }
     #status { color: #fbbf24; }
+    fieldset { max-width: 600px; margin: 1rem auto; padding: 0; border: 0; }
+    .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+    .controls button, #name-form button { min-height: 48px; border: 1px solid #64748b; border-radius: .6rem; background: #334155; color: white; font: inherit; cursor: pointer; touch-action: manipulation; user-select: none; }
+    .controls button:active, #name-form button:active { background: #475569; }
+    .controls button:focus-visible, #name-form :focus-visible { outline: 3px solid #fbbf24; outline-offset: 2px; }
+    .controls .arrow { font-size: 1.5rem; }
+    .controls .select { background: #166534; }
+    #name-form { max-width: 600px; margin: 1rem auto; }
+    #name-form label { display: block; margin-bottom: .5rem; }
+    #name-form input { box-sizing: border-box; width: min(12rem, 60%); min-height: 48px; border: 1px solid #64748b; border-radius: .6rem; padding: .5rem; font: inherit; }
+    #name-form button { padding: 0 1rem; }
+    [hidden] { display: none !important; }
+    @media (max-width: 480px) { body { padding: .5rem; } h1 { margin: .25rem 0; font-size: 1.4rem; } fieldset { margin: .5rem auto; } .controls { gap: .35rem; } p { margin: .6rem auto; } }
   </style>
 </head>
 <body>
@@ -20,7 +33,27 @@
     <canvas id="canvas" width="600" height="600" tabindex="0" aria-label="Tetris game"></canvas>
     <canvas id="text" width="600" height="600" aria-hidden="true"></canvas>
   </div>
-  <p>Use the arrow keys to move and rotate, Space to select, P to pause, Esc to return, and L to switch language.</p>
+  <form id="name-form" hidden>
+    <label for="player-name">High score! Enter your name (letters and numbers):</label>
+    <input id="player-name" maxlength="11" autocomplete="off" autocapitalize="off">
+    <button type="submit">Save score</button>
+  </form>
+  <fieldset id="controls" disabled aria-label="Game controls">
+    <div class="controls">
+      <button type="button" data-key="27">Back / Save</button>
+      <button type="button" class="arrow" data-key="101" data-special="1" aria-label="Up or rotate">▲</button>
+      <button type="button" data-key="112">Pause</button>
+      <button type="button" class="arrow" data-key="100" data-special="1" data-repeat aria-label="Move left">◀</button>
+      <button type="button" class="arrow" data-key="103" data-special="1" data-repeat aria-label="Move down">▼</button>
+      <button type="button" class="arrow" data-key="102" data-special="1" data-repeat aria-label="Move right">▶</button>
+      <button type="button" data-key="45">Faster</button>
+      <button type="button" class="select" data-key="32">Select</button>
+      <button type="button" data-key="43">Slower</button>
+      <button type="button" data-key="1" data-special="1">Help</button>
+      <button type="button" data-key="108">Language</button>
+    </div>
+  </fieldset>
+  <p>Use the buttons or arrow keys to move and rotate. Select starts a game; Back returns to the menu.</p>
   <p id="status" role="status">Loading game…</p>
   <script>
     var Module = {
@@ -31,9 +64,45 @@
           if (saved !== null) FS.writeFile('wyniki.txt', saved);
         } catch (error) { console.warn('Could not load results:', error); }
       }],
-      onRuntimeInitialized: function () { document.getElementById('status').textContent = ''; },
+      onRuntimeInitialized: function () { document.getElementById('status').textContent = ''; document.getElementById('controls').disabled = false; },
       onAbort: function () { document.getElementById('status').textContent = 'The game could not start. Please reload the page.'; }
     };
+  </script>
+  <script>
+    // GLUT listens for keys on window in capture phase. Keep input events for the on-screen keyboard.
+    for (const type of ['keydown', 'keyup']) {
+      window.addEventListener(type, function (event) {
+        if (event.target.id === 'player-name') event.stopImmediatePropagation();
+      }, true);
+    }
+    const controls = document.getElementById('controls');
+    const sendKey = button => Module._web_key(Number(button.dataset.key), Number(button.dataset.special || 0));
+    for (const button of controls.querySelectorAll('button')) {
+      let delay, repeat, pointerActivated = false;
+      const stop = () => { clearTimeout(delay); clearInterval(repeat); };
+      button.addEventListener('pointerdown', event => {
+        if (event.button !== 0) return;
+        event.preventDefault();
+        pointerActivated = true;
+        button.setPointerCapture(event.pointerId);
+        sendKey(button);
+        if (button.hasAttribute('data-repeat')) {
+          delay = setTimeout(() => { repeat = setInterval(() => sendKey(button), 100); }, 350);
+        }
+      });
+      for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) button.addEventListener(type, stop);
+      button.addEventListener('pointerup', () => setTimeout(() => { pointerActivated = false; }, 0));
+      button.addEventListener('pointercancel', () => { pointerActivated = false; });
+      button.addEventListener('click', () => { if (!pointerActivated) sendKey(button); });
+    }
+    document.getElementById('name-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const name = document.getElementById('player-name').value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 11);
+      Module._web_name_char(0, 1);
+      for (const character of name) Module._web_name_char(character.charCodeAt(0), 0);
+      Module._web_key(27, 0);
+      document.getElementById('player-name').blur();
+    });
   </script>
   <script src="tetris.js"></script>
 </body>
