@@ -27,11 +27,11 @@
   let language = saved === 'pl' || saved === 'en' ? saved : preferred || 'en';
   const labels = [...document.querySelectorAll('[aria-label]')].map(element => [element, element.getAttribute('aria-label')]);
   const text = [...document.querySelectorAll('[data-i18n]')].map(element => [element, element.textContent]);
-  const picker = document.getElementById('language');
+  const languageButtons = document.querySelectorAll('[data-language]');
   function t(source) { return language === 'pl' ? translations[source] || source : source; }
   function render() {
     document.documentElement.lang = language;
-    picker.value = language;
+    for (const button of languageButtons) button.setAttribute('aria-pressed', String(button.dataset.language === language));
     for (const [element, source] of labels) element.setAttribute('aria-label', t(source));
     for (const [element, source] of text) element.textContent = t(source);
     const status = document.getElementById('status');
@@ -45,6 +45,6 @@
     if (!fromGame && window.Module?._web_set_language) window.Module._web_set_language(language === 'pl' ? 1 : 0);
   }
   window.TetrisI18n = { get language() { return language; }, setLanguage, t };
-  picker.addEventListener('change', event => setLanguage(event.target.value));
+  for (const button of languageButtons) button.addEventListener('click', () => setLanguage(button.dataset.language));
   render();
 })();

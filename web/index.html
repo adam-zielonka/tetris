@@ -6,8 +6,6 @@
   <title>Tetris</title>
   <style>
     body { margin: 0; padding: 1rem; background: #111827; color: #f9fafb; font: 16px system-ui, sans-serif; text-align: center; }
-    .language-picker { display: block; margin: .5rem; }
-    .language-picker select { padding: .5rem; color: inherit; background: #334155; border: 1px solid #64748b; border-radius: .5rem; font: inherit; }
     h1 { margin: .5rem 0; }
     .game { position: relative; width: min(600px, 100%); aspect-ratio: 1; margin: auto; }
     canvas { width: 100%; height: 100%; display: block; }
@@ -27,11 +25,17 @@
     #name-form button { padding: 0 1rem; }
     [hidden] { display: none !important; }
     @media (max-width: 480px) { body { padding: .5rem; } h1 { margin: .25rem 0; font-size: 1.4rem; } fieldset { margin: .5rem auto; } .controls { gap: .35rem; } p { margin: .6rem auto; } }
+
+.language-switch { display: inline-flex; align-items: center; gap: .4em; color: #94a3b8; font-size: 11px; white-space: nowrap; }
+.language-switch button { padding: .25rem 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: .2em; }
+.language-switch button[aria-pressed="true"] { font-weight: 600; text-decoration: none; }
+.language-switch button:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
+
+    footer { margin: 2rem auto 1rem; }
   </style>
 </head>
 <body>
   <h1>Tetris</h1>
-  <label class="language-picker">PL / EN <select id="language" aria-label="Język / Language"><option value="pl">Polski</option><option value="en">English</option></select></label>
   <div class="game">
     <canvas id="canvas" width="600" height="600" tabindex="0" aria-label="Tetris game"></canvas>
     <canvas id="text" width="600" height="600" aria-hidden="true"></canvas>
@@ -53,11 +57,17 @@
       <button type="button" class="select" data-key="32" data-i18n>Select</button>
       <button type="button" data-key="43" data-i18n>Slower</button>
       <button type="button" data-key="1" data-special="1" data-i18n>Help</button>
-      <button type="button" data-key="108" data-i18n>Language</button>
     </div>
   </fieldset>
   <p data-i18n>Use the buttons or arrow keys to move and rotate. Select starts a game; Back returns to the menu.</p>
   <p id="status" role="status" data-message="Loading game…">Loading game…</p>
+  <footer>
+    <div class="language-switch" role="group" aria-label="Language / Język">
+      <button type="button" lang="en" data-language="en" aria-pressed="false">English</button>
+      <span aria-hidden="true">/</span>
+      <button type="button" lang="pl" data-language="pl" aria-pressed="false">Polski</button>
+    </div>
+  </footer>
   <script src="i18n.js"></script>
   <script>
     var Module = {
@@ -76,7 +86,7 @@
     // GLUT listens on window in capture phase; leave form and button keys to the browser.
     for (const type of ['keydown', 'keyup']) {
       window.addEventListener(type, function (event) {
-        if (event.target.id === 'language' || event.target.id === 'player-name' ||
+        if (event.target.closest?.('.language-switch') || event.target.id === 'player-name' ||
             (event.target.closest?.('#controls button') && (event.key === ' ' || event.key === 'Enter'))) {
           event.stopImmediatePropagation();
         }

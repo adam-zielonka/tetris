@@ -37,8 +37,8 @@ async function main() {
       await page.waitForFunction(() => !document.querySelector('#controls').disabled);
       const initial = locale.startsWith('pl') ? 'pl' : 'en';
       const other = initial === 'pl' ? 'en' : 'pl';
-      const picker = page.getByRole('combobox', { name: 'Język / Language' });
-      assert.equal(await picker.inputValue(), initial);
+      const languageButton = code => page.locator(`footer button[data-language="${code}"]`);
+      assert.equal(await languageButton(initial).getAttribute("aria-pressed"), "true");
       assert.equal(await page.evaluate(() => localStorage.getItem('tetris-language')), null,
         'An inferred browser language must not be saved as a manual choice');
       await page.waitForFunction(text => window.gameText?.includes(text), initial === 'pl' ? 'Nowa Gra' : 'New Game');
@@ -47,16 +47,16 @@ async function main() {
       // Element screenshots also include the text canvas layered above the board.
       await page.locator('#text').evaluate(element => { element.style.visibility = 'hidden'; });
       const pausedBoard = await page.locator('#canvas').screenshot();
-      await picker.selectOption(other);
+      await languageButton(other).click();
       await page.waitForFunction(text => window.gameText?.slice(-25).includes(text), other === 'pl' ? 'Punkty' : 'Points');
       assert.ok(pausedBoard.equals(await page.locator('#canvas').screenshot()), 'Language switching changed the paused board');
       await page.locator('#canvas').focus();
       await page.keyboard.press('l');
-      assert.equal(await picker.inputValue(), initial, 'The L key did not update the page selector');
-      await picker.selectOption(other);
+      assert.equal(await languageButton(initial).getAttribute('aria-pressed'), 'true', 'The L key did not update the footer language links');
+      await languageButton(other).click();
       await page.reload();
       await page.waitForFunction(() => !document.querySelector('#controls').disabled);
-      assert.equal(await picker.inputValue(), other);
+      assert.equal(await languageButton(other).getAttribute("aria-pressed"), "true");
       await page.waitForFunction(text => window.gameText?.includes(text), other === 'pl' ? 'Nowa Gra' : 'New Game');
       for (const width of [320, 390, 1440]) {
         await page.setViewportSize({ width, height: 900 });
