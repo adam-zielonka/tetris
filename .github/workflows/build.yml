@@ -44,6 +44,10 @@ jobs:
           npm install --prefix "$RUNNER_TEMP/tetris-browser" --no-save --ignore-scripts @playwright/test@1.64.1
           "$RUNNER_TEMP/tetris-browser/node_modules/.bin/playwright" install --with-deps --only-shell chromium
           NODE_PATH="$RUNNER_TEMP/tetris-browser/node_modules" node scripts/test-web-language.cjs
+      - name: Test all seven rendered shapes and pause contrast
+        run: |
+          scripts/build-readability-fixture.sh
+          NODE_PATH="$RUNNER_TEMP/tetris-browser/node_modules" TETRIS_EVIDENCE="$RUNNER_TEMP/tetris-readability" node scripts/test-readability.cjs
       - run: tar -czf tetris-web.tar.gz -C build/web .
       - uses: actions/upload-artifact@v7
         with:

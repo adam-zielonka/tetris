@@ -97,3 +97,22 @@ The Pages workflow runs `scripts/test-web-language.cjs` against the built WebAss
 game using Playwright. It checks browser preferences, both directions of language
 synchronization, persistence, the paused board and 320–1440 px layouts. For a local
 run, make `@playwright/test` available on `NODE_PATH` and run the script after the web build.
+
+### Readability regression checks
+
+After the normal web build, `scripts/test-web-language.cjs` also checks the
+rendered white pause plaque. To inspect all seven shapes without changing the
+production random generator, build a separate test-only WASM fixture:
+
+```sh
+scripts/build-readability-fixture.sh
+NODE_PATH=/path/to/node_modules TETRIS_EVIDENCE=/tmp/tetris-readability node scripts/test-readability.cjs
+```
+
+The fixture controls current/next shape and UI state, uses the normal renderer,
+and stays in `build/readability`; Pages uploads only `build/web`. The test
+checks each shape in both board areas and measures color and CSS grayscale
+contrast from rendered screenshots. `TETRIS_CHROMIUM` can select an existing
+Chromium executable for either test; CI uses Playwright's bundled browser.
+A native build does not certify a native GUI run: that needs an available
+OpenGL display. CSS grayscale does not test a physical monochrome panel.

@@ -2,6 +2,9 @@
 const { chromium } = require('@playwright/test');
 const assert = require('node:assert/strict');
 const fs = require('node:fs');
+const { createRequire } = require('node:module');
+const coreRequire = createRequire(createRequire(require.resolve('@playwright/test')).resolve('playwright'));
+const { PNG } = require(require('node:path').join(require('node:path').dirname(coreRequire.resolve('playwright-core/package.json')), 'lib/utilsBundle.js'));
 const http = require('node:http');
 const path = require('node:path');
 
@@ -15,7 +18,7 @@ const server = http.createServer((req, res) => {
 
 async function main() {
   await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-  const browser = await chromium.launch({ args: ['--enable-unsafe-swiftshader'] });
+  const browser = await chromium.launch({ executablePath: process.env.TETRIS_CHROMIUM, args: ['--enable-unsafe-swiftshader'] });
   try {
     for (const locale of ['en-GB', 'pl-PL', 'fr-FR']) {
       const context = await browser.newContext({ locale, viewport: { width: 390, height: 844 } });
@@ -44,6 +47,10 @@ async function main() {
       await page.waitForFunction(text => window.gameText?.includes(text), initial === 'pl' ? 'Nowa Gra' : 'New Game');
       await page.getByRole('button', { name: initial === 'pl' ? 'Wybierz' : 'Select', exact: true }).click();
       await page.getByRole('button', { name: initial === 'pl' ? 'Pauza' : 'Pause', exact: true }).click();
+      await page.waitForFunction(text => window.gameText?.slice(-25).some(value => value.startsWith(text)), initial === 'pl' ? 'Pauza' : 'Pause');
+      const pausePixels = PNG.sync.read(await page.locator('#canvas').screenshot());
+      const plaqueOffset = (Math.round(pausePixels.height * 181 / 600) * pausePixels.width + Math.round(pausePixels.width * 340 / 600)) * 4;
+      assert.ok([0, 1, 2].every(channel => pausePixels.data[plaqueOffset + channel] > 240), 'Pause plaque must be white in the rendered game');
       // Element screenshots also include the text canvas layered above the board.
       await page.locator('#text').evaluate(element => { element.style.visibility = 'hidden'; });
       const pausedBoard = await page.locator('#canvas').screenshot();

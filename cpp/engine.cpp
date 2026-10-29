@@ -21,11 +21,11 @@ namespace Engine {
   const GLfloat Colors[12][3] = {
     {1,1,1},
     {0,1,1}, // Square     - Turkus
-    {1,0,0}, // Line       - Czerwony
+    {1,0.4,0.4}, // Line - Red, readable in color and grayscale
     {1,1,0}, // L          - Zloty
-    {1,0,1}, // Mirrored L - Fiolet
+    {1,0.4,1}, // Mirrored L - Magenta, readable in grayscale
     {0,1,0}, // Z          - Niebieski
-    {0,0,1}, // Mirrored Z - Zielony
+    {0.25,0.4,1}, // Mirrored Z - Blue, readable on board and preview backgrounds
     {0.5,0.5,0.5}, // Nose - Szary
     {0, 0.1, 0}, // Background 1A //8
     {0, 0, 0.1}, // Background 1B //9

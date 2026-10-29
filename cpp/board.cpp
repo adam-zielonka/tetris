@@ -39,8 +39,9 @@ namespace Board {
         if(i == nextFigure[3][1] && j == nextFigure[3][0])
           color = nextFigure[3][2];
 
-        if((typing == 1 || menu == 11 || menu == 22) && i == 15 && j > 11 &&  j < 20)
-          color = 6;
+        if((typing == 1 || menu == 11 || menu == 22) && i == 15 && j > 11 && j < 20)
+          // Pause has its own neutral plaque, independent of the figure palette.
+          color = menu == 22 ? 0 : 6;
         
         if(typing == 1 && i == 13 && j > 12 && j < 19)
           color = 1;
