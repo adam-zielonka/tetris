@@ -12,7 +12,7 @@ const root = path.resolve(__dirname, '../build/web');
 const server = http.createServer((req, res) => {
   const pathname = new URL(req.url, 'http://localhost').pathname;
   const file = path.join(root, pathname === '/' ? 'index.html' : pathname);
-  res.setHeader('Content-Type', file.endsWith('.wasm') ? 'application/wasm' : file.endsWith('.js') ? 'text/javascript' : 'text/html');
+  res.setHeader('Content-Type', file.endsWith('.wasm') ? 'application/wasm' : file.endsWith('.js') ? 'text/javascript' : file.endsWith('.css') ? 'text/css' : 'text/html');
   fs.createReadStream(file).on('error', () => { res.statusCode = 404; res.end(); }).pipe(res);
 });
 

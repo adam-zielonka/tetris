@@ -28,7 +28,7 @@ const server = http.createServer((req, res) => {
       ? "application/wasm"
       : file.endsWith(".js")
         ? "text/javascript"
-        : "text/html",
+        : file.endsWith(".css") ? "text/css" : "text/html",
   );
   fs.createReadStream(file)
     .on("error", () => {

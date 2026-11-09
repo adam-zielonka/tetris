@@ -1,5 +1,12 @@
 (() => {
   const translations = {
+  "Tetris monitor": "Monitor Tetrisa",
+  "Restart game": "Uruchom grę ponownie",
+  "Try again": "Spróbuj ponownie",
+  "Mini pad": "Mini pad",
+  "KEYBOARD / TOUCH": "KLAWIATURA / DOTYK",
+  "Source code": "Kod źródłowy",
+  "Scores are saved on this device.": "Wyniki są zapisane na tym urządzeniu.",
   "Tetris game": "Gra Tetris",
   "High score! Enter your name (letters and numbers):": "Rekord! Podaj imię (litery i cyfry):",
   "Save score": "Zapisz wynik",

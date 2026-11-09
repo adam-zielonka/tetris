@@ -83,6 +83,25 @@ GitHub Actions builds both versions on pushes and pull requests. A push to
 archives and publishes a GitHub release.
 
 
+## CRT browser player
+
+The web version uses the same vintage monitor and mini pad design as the
+portfolio and DOS/Pascal games: a textured beige case, recessed screen, power
+indicator and restart button. The square game and text layers keep their original
+colors and contrast. The mini pad supports touch, mouse and keyboard; held
+movement stops when the page loses focus or becomes hidden.
+
+The round monitor button restarts the game. Saved scores and the selected
+language remain on the device. A failed download shows a translated retry button.
+The footer links back to the portfolio and this source repository.
+
+`scripts/build-web.sh` copies the player HTML, CSS, JavaScript and translations
+alongside the compiled game. `scripts/test-web-crt.cjs` checks layouts from
+320–1280 px, aligned canvases, touch target sizes, input, restart persistence,
+retry and unavailable storage. Run it with the same `NODE_PATH` as the language
+test below. Set `TETRIS_EVIDENCE` to a directory to save layout screenshots.
+All three browser checks run before the existing GitHub Pages deployment.
+
 ## Language / Język
 
 The browser version supports Polish and English. On the first visit it uses the

@@ -3,124 +3,79 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Tetris</title>
-  <style>
-    body { margin: 0; padding: 1rem; background: #111827; color: #f9fafb; font: 16px system-ui, sans-serif; text-align: center; }
-    h1 { margin: .5rem 0; }
-    .game { position: relative; width: min(600px, 100%); aspect-ratio: 1; margin: auto; }
-    canvas { width: 100%; height: 100%; display: block; }
-    #text { position: absolute; inset: 0; pointer-events: none; }
-    p { max-width: 600px; margin: 1rem auto; line-height: 1.5; }
-    #status { color: #fbbf24; }
-    fieldset { max-width: 600px; margin: 1rem auto; padding: 0; border: 0; }
-    .controls { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
-    .controls button, #name-form button { min-height: 48px; border: 1px solid #64748b; border-radius: .6rem; background: #334155; color: white; font: inherit; cursor: pointer; touch-action: manipulation; user-select: none; }
-    .controls button:active, #name-form button:active { background: #475569; }
-    .controls button:focus-visible, #name-form :focus-visible { outline: 3px solid #fbbf24; outline-offset: 2px; }
-    .controls .arrow { font-size: 1.5rem; }
-    .controls .select { background: #166534; }
-    #name-form { max-width: 600px; margin: 1rem auto; }
-    #name-form label { display: block; margin-bottom: .5rem; }
-    #name-form input { box-sizing: border-box; width: min(12rem, 60%); min-height: 48px; border: 1px solid #64748b; border-radius: .6rem; padding: .5rem; font: inherit; }
-    #name-form button { padding: 0 1rem; }
-    [hidden] { display: none !important; }
-    @media (max-width: 480px) { body { padding: .5rem; } h1 { margin: .25rem 0; font-size: 1.4rem; } fieldset { margin: .5rem auto; } .controls { gap: .35rem; } p { margin: .6rem auto; } }
-
-.language-switch { display: inline-flex; align-items: center; gap: .4em; color: #94a3b8; font-size: 11px; white-space: nowrap; }
-.language-switch button { padding: .25rem 0; border: 0; background: none; color: inherit; font: inherit; cursor: pointer; text-decoration: underline; text-underline-offset: .2em; }
-.language-switch button[aria-pressed="true"] { font-weight: 600; text-decoration: none; }
-.language-switch button:focus-visible { outline: 2px solid currentColor; outline-offset: 4px; }
-
-    footer { margin: 2rem auto 1rem; }
-  </style>
+  <meta name="description" content="Classic Tetris in a vintage CRT monitor. Play with your keyboard or the touch mini pad, in English or Polish.">
+  <meta name="theme-color" content="#171b18">
+  <title>Tetris · CRT Arcade</title>
+  <link rel="stylesheet" href="player.css">
 </head>
 <body>
-  <h1>Tetris</h1>
-  <div class="game">
-    <canvas id="canvas" width="600" height="600" tabindex="0" aria-label="Tetris game"></canvas>
-    <canvas id="text" width="600" height="600" aria-hidden="true"></canvas>
-  </div>
-  <form id="name-form" hidden>
-    <label for="player-name" data-i18n>High score! Enter your name (letters and numbers):</label>
-    <input id="player-name" maxlength="11" autocomplete="off" autocapitalize="off">
-    <button type="submit" data-i18n>Save score</button>
-  </form>
-  <fieldset id="controls" disabled aria-label="Game controls">
-    <div class="controls">
-      <button type="button" data-key="27" data-i18n>Back / Save</button>
-      <button type="button" class="arrow" data-key="101" data-special="1" aria-label="Up or rotate">▲</button>
-      <button type="button" data-key="112" data-i18n>Pause</button>
-      <button type="button" class="arrow" data-key="100" data-special="1" data-repeat aria-label="Move left">◀</button>
-      <button type="button" class="arrow" data-key="103" data-special="1" data-repeat aria-label="Move down">▼</button>
-      <button type="button" class="arrow" data-key="102" data-special="1" data-repeat aria-label="Move right">▶</button>
-      <button type="button" data-key="45" data-i18n>Faster</button>
-      <button type="button" class="select" data-key="32" data-i18n>Select</button>
-      <button type="button" data-key="43" data-i18n>Slower</button>
-      <button type="button" data-key="1" data-special="1" data-i18n>Help</button>
-    </div>
-  </fieldset>
-  <p data-i18n>Use the buttons or arrow keys to move and rotate. Select starts a game; Back returns to the menu.</p>
-  <p id="status" role="status" data-message="Loading game…">Loading game…</p>
-  <footer>
-    <div class="language-switch" role="group" aria-label="Language / Język">
-      <button type="button" lang="en" data-language="en" aria-pressed="false">English</button>
-      <span aria-hidden="true">/</span>
-      <button type="button" lang="pl" data-language="pl" aria-pressed="false">Polski</button>
-    </div>
-  </footer>
+  <main class="arcade">
+    <section class="monitor" aria-label="Tetris monitor">
+      <div class="glass">
+        <div class="game">
+          <canvas id="canvas" width="600" height="600" tabindex="0" aria-label="Tetris game"></canvas>
+          <canvas id="text" width="600" height="600" aria-hidden="true"></canvas>
+          <div class="boot" id="boot" role="status">
+            <strong>TETRIS</strong>
+            <span id="status" data-message="Loading game…">Loading game…</span>
+            <button id="retry" type="button" data-i18n hidden>Try again</button>
+          </div>
+        </div>
+      </div>
+      <div class="chin">
+        <h1 class="badge">TETRIS<span>COLOR CRT<br>EST. 2015</span></h1>
+        <div class="vents" aria-hidden="true"></div>
+        <div class="hardware">
+          <span class="indicator" aria-hidden="true"><i id="led"></i>POWER</span>
+          <button class="restart" id="restart" type="button" aria-label="Restart game">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" aria-hidden="true"><path d="M12 3v9M6.3 5.9a8 8 0 1 0 11.4 0"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+    <div class="stand" aria-hidden="true"></div>
+    <section class="controller" aria-label="Mini pad">
+      <div class="controller-heading"><span>MINI PAD</span><span data-i18n>KEYBOARD / TOUCH</span></div>
+      <fieldset id="controls" disabled aria-label="Game controls">
+        <div class="dpad">
+          <button type="button" class="up" data-key="101" data-special="1" aria-label="Up or rotate">▲</button>
+          <button type="button" class="left" data-key="100" data-special="1" data-repeat aria-label="Move left">◀</button>
+          <span class="dpad-center" aria-hidden="true"></span>
+          <button type="button" class="down" data-key="103" data-special="1" data-repeat aria-label="Move down">▼</button>
+          <button type="button" class="right" data-key="102" data-special="1" data-repeat aria-label="Move right">▶</button>
+        </div>
+        <div class="actions">
+          <button type="button" class="select" data-key="32" aria-label="Select"><span data-i18n>Select</span><small>SPACE</small></button>
+          <button type="button" data-key="112" aria-label="Pause"><span data-i18n>Pause</span><small>P</small></button>
+          <button type="button" data-key="27" aria-label="Back / Save"><span data-i18n>Back / Save</span><small>ESC</small></button>
+          <button type="button" data-key="1" aria-label="Help" data-special="1"><span data-i18n>Help</span><small>F1</small></button>
+          <button type="button" data-key="45" aria-label="Faster"><span data-i18n>Faster</span><small>−</small></button>
+          <button type="button" data-key="43" aria-label="Slower"><span data-i18n>Slower</span><small>+</small></button>
+        </div>
+      </fieldset>
+      <p data-i18n>Use the buttons or arrow keys to move and rotate. Select starts a game; Back returns to the menu.</p>
+      <form id="name-form" hidden>
+        <label for="player-name" data-i18n>High score! Enter your name (letters and numbers):</label>
+        <div class="name-entry">
+          <input id="player-name" maxlength="11" autocomplete="off" autocapitalize="off" aria-describedby="name-hint">
+          <button type="submit" data-i18n>Save score</button>
+        </div>
+        <p id="name-hint" data-i18n>Scores are saved on this device.</p>
+      </form>
+    </section>
+    <footer>
+      <a href="https://adam-zielonka.github.io/" data-i18n>← Portfolio</a>
+      <a href="https://github.com/adam-zielonka/tetris" data-i18n>Source code</a>
+      <div class="language-switch" role="group" aria-label="Language / Język">
+        <button type="button" lang="en" data-language="en" aria-pressed="false">English</button>
+        <span aria-hidden="true">/</span>
+        <button type="button" lang="pl" data-language="pl" aria-pressed="false">Polski</button>
+      </div>
+    </footer>
+    <noscript>Enable JavaScript to play Tetris. / Włącz JavaScript, aby zagrać w Tetrisa.</noscript>
+  </main>
   <script src="i18n.js"></script>
-  <script>
-    var Module = {
-      canvas: document.getElementById('canvas'),
-      preRun: [function () {
-        try {
-          const saved = localStorage.getItem('tetris-results');
-          if (saved !== null) FS.writeFile('wyniki.txt', saved);
-        } catch (error) { console.warn('Could not load results:', error); }
-      }],
-      onRuntimeInitialized: function () { document.getElementById('status').textContent = ''; delete document.getElementById('status').dataset.message; document.getElementById('controls').disabled = false; },
-      onAbort: function () { document.getElementById('status').dataset.message = 'The game could not start. Please reload the page.'; document.getElementById('status').textContent = TetrisI18n.t('The game could not start. Please reload the page.'); }
-    };
-  </script>
-  <script>
-    // GLUT listens on window in capture phase; leave form and button keys to the browser.
-    for (const type of ['keydown', 'keyup']) {
-      window.addEventListener(type, function (event) {
-        if (event.target.closest?.('.language-switch') || event.target.id === 'player-name' ||
-            (event.target.closest?.('#controls button') && (event.key === ' ' || event.key === 'Enter'))) {
-          event.stopImmediatePropagation();
-        }
-      }, true);
-    }
-    const controls = document.getElementById('controls');
-    const sendKey = button => Module._web_key(Number(button.dataset.key), Number(button.dataset.special || 0));
-    for (const button of controls.querySelectorAll('button')) {
-      let delay, repeat, pointerActivated = false;
-      const stop = () => { clearTimeout(delay); clearInterval(repeat); };
-      button.addEventListener('pointerdown', event => {
-        if (event.button !== 0) return;
-        event.preventDefault();
-        pointerActivated = true;
-        button.setPointerCapture(event.pointerId);
-        sendKey(button);
-        if (button.hasAttribute('data-repeat')) {
-          delay = setTimeout(() => { repeat = setInterval(() => sendKey(button), 100); }, 350);
-        }
-      });
-      for (const type of ['pointerup', 'pointercancel', 'lostpointercapture']) button.addEventListener(type, stop);
-      button.addEventListener('pointerup', () => setTimeout(() => { pointerActivated = false; }, 0));
-      button.addEventListener('pointercancel', () => { pointerActivated = false; });
-      button.addEventListener('click', () => { if (!pointerActivated) sendKey(button); });
-    }
-    document.getElementById('name-form').addEventListener('submit', event => {
-      event.preventDefault();
-      const name = document.getElementById('player-name').value.replace(/[^a-zA-Z0-9]/g, '').slice(0, 11);
-      Module._web_name_char(0, 1);
-      for (const character of name) Module._web_name_char(character.charCodeAt(0), 0);
-      Module._web_key(27, 0);
-      document.getElementById('player-name').blur();
-    });
-  </script>
-  <script src="tetris.js"></script>
+  <script src="player.js"></script>
+  <script src="tetris.js" onerror="Module.onAbort()"></script>
 </body>
 </html>
