@@ -7,7 +7,7 @@ button { font: inherit; cursor: pointer; }
 button:focus-visible, a:focus-visible, summary:focus-visible, canvas:focus-visible { outline: 2px solid #9bbf77; outline-offset: 4px; }
 .arcade { width: min(100%, 740px); margin: auto; padding: clamp(12px, 3vw, 36px); }
 .monitor { padding: clamp(10px, 2.4vw, 28px) clamp(10px, 2.8vw, 34px) 0; border: 2px solid #b4af9d; border-top-color: #e7e1cc; border-bottom-color: #716e60; border-radius: 32px 32px 24px 24px; background: repeating-linear-gradient(0deg, #fff0 0 3px, #453c2410 3px 4px), linear-gradient(125deg, #d5cfb9, #b4af9b 55%, #999582); box-shadow: inset 3px 3px 3px #f3eddc99, inset -4px -5px 8px #4b483e66, 0 24px 50px #0008, 0 3px 5px #000a; }
-.glass { position: relative; isolation: isolate; overflow: hidden; padding: clamp(12px, 2vw, 22px); border: 10px solid #484b3f; border-top-color: #626355; border-bottom-color: #8e8d79; border-radius: 48px / 32px; background: #080c09; box-shadow: 0 0 0 2px #8c8976, 0 2px 1px 2px #e4ddc799, inset 0 0 24px #000; }
+.glass { position: relative; isolation: isolate; overflow: hidden; padding: 0; border: 10px solid #484b3f; border-top-color: #626355; border-bottom-color: #8e8d79; border-radius: 48px / 32px; background: #080c09; box-shadow: 0 0 0 2px #8c8976, 0 2px 1px 2px #e4ddc799, inset 0 0 24px #000; }
 .game { position: relative; width: 100%; aspect-ratio: 1; background: #000; }
 canvas { display: block; width: 100%; height: 100%; }
 #text { position: absolute; inset: 0; pointer-events: none; }
@@ -45,7 +45,7 @@ a { color: inherit; text-underline-offset: 4px; } a:hover { color: #d3e9b9; }
 @media (max-width: 600px), (max-height: 600px) {
   .arcade { padding: 12px 8px 24px; }
   .monitor { padding: 10px 10px 0; border-radius: 22px 22px 16px 16px; }
-  .glass { padding: 2px; border-width: 6px; border-radius: 24px / 20px; }
+  .glass { border-width: 6px; border-radius: 24px / 20px; }
   .chin { min-height: 62px; padding: 6px 4px; gap: 10px; }
   .badge { gap: 7px; font-size: 16px; }
   .badge span { padding-left: 7px; font-size: 7px; letter-spacing: 1px; }
@@ -78,7 +78,6 @@ a { color: inherit; text-underline-offset: 4px; } a:hover { color: #d3e9b9; }
 noscript { display: block; margin: 20px auto; text-align: center; }
 @media (min-width: 800px) {
   .arcade { width: min(100%, 740px, max(480px, calc(100svh - 330px))); padding-top: 20px; }
-  .glass { padding: 10px; }
   .chin { min-height: 70px; }
   .actions { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   .actions button { font-size: 12px; }
